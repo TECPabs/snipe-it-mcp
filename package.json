@@ -20,7 +20,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/TECPabs/snipe-it-mcp.git"
+    "url": "git+https://github.com/TECPabs/snipe-it-mcp.git"
   },
   "homepage": "https://github.com/TECPabs/snipe-it-mcp#readme",
   "bugs": {
