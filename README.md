@@ -1,0 +1,133 @@
+# Snipe-IT MCP Server
+
+A [Model Context Protocol](https://modelcontextprotocol.io) server for [Snipe-IT](https://snipeitapp.com) — lets Claude query and manage your IT assets, users, locations, licenses, and more via natural language.
+
+Built and maintained by [TEC Building Systems LLC](https://github.com/TECPabs). Community contributions welcome!
+
+---
+
+## Quick Start
+
+```jsonc
+// claude_desktop_config.json  (or ~/.claude/settings.json for Claude Code)
+{
+  "mcpServers": {
+    "snipeit": {
+      "command": "npx",
+      "args": ["-y", "@tecpabs/snipe-it-mcp"],
+      "env": {
+        "SNIPEIT_URL": "https://your-snipeit-instance.com",
+        "SNIPEIT_API_TOKEN": "your-api-token-here"
+      }
+    }
+  }
+}
+```
+
+Get your API token from **Snipe-IT → Profile → API**.
+
+---
+
+## Configuration
+
+| Variable | Required | Description |
+|---|---|---|
+| `SNIPEIT_URL` | Yes | Base URL of your Snipe-IT instance |
+| `SNIPEIT_API_TOKEN` | Yes | Bearer token from your Snipe-IT profile |
+| `LOG_LEVEL` | No | `debug`, `info` (default), `warn`, `error` |
+
+---
+
+## Available Tools
+
+### Meta
+| Tool | Description |
+|---|---|
+| `snipeit_status` | Check connection and credentials |
+| `snipeit_navigate` | Discover available domains |
+
+### Hardware (Assets)
+| Tool | Description |
+|---|---|
+| `snipeit_hardware_list` | List assets with filters (status, category, location, search) |
+| `snipeit_hardware_get` | Get asset by ID |
+| `snipeit_hardware_by_tag` | Get asset by asset tag |
+| `snipeit_hardware_checkin` | Check in an asset |
+| `snipeit_hardware_checkout` | Check out to user, location, or asset |
+| `snipeit_hardware_audit` | Record an asset audit |
+| `snipeit_hardware_create` | Create a new asset |
+| `snipeit_hardware_update` | Update asset fields |
+
+### Users
+| Tool | Description |
+|---|---|
+| `snipeit_users_list` | List users |
+| `snipeit_users_get` | Get user by ID |
+| `snipeit_users_assets` | List assets assigned to a user |
+
+### Locations
+| Tool | Description |
+|---|---|
+| `snipeit_locations_list` | List locations |
+| `snipeit_locations_get` | Get location by ID |
+| `snipeit_locations_assets` | List assets at a location |
+
+### Licenses
+| Tool | Description |
+|---|---|
+| `snipeit_licenses_list` | List licenses |
+| `snipeit_licenses_get` | Get license by ID |
+| `snipeit_licenses_seats` | List seat assignments |
+
+### Models, Categories, Manufacturers, Status Labels
+| Tool | Description |
+|---|---|
+| `snipeit_models_list` / `snipeit_models_get` | Asset models |
+| `snipeit_categories_list` / `snipeit_categories_get` | Categories |
+| `snipeit_manufacturers_list` / `snipeit_manufacturers_get` | Manufacturers |
+| `snipeit_statuslabels_list` / `snipeit_statuslabels_get` | Status labels |
+| `snipeit_statuslabels_assets` | Assets with a given status |
+
+---
+
+## Built-in Prompts
+
+Use these with Claude's prompt selector:
+
+- **`asset-audit-report`** — Summarize all assets by location and status
+- **`expiring-licenses`** — Find licenses expiring soon
+- **`unassigned-assets`** — List deployable assets with no assignee
+
+---
+
+## Local Development
+
+```bash
+git clone https://github.com/TECPabs/snipe-it-mcp.git
+cd snipe-it-mcp
+npm install
+npm run build
+
+# Point Claude Code at your local build:
+# command: node, args: ["D:/Claude/snipe-it-mcp/dist/index.js"]
+```
+
+---
+
+## Contributing
+
+Pull requests welcome! Areas that would benefit from community help:
+
+- Accessories, consumables, and components domains
+- Asset maintenance records
+- Custom fields support
+- Bulk operations
+- Tests
+
+Please open an issue first for major changes.
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE)
