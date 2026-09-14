@@ -1,6 +1,6 @@
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import { snipeGet } from "../utils/client.js";
-import { ok, err, type DomainHandler } from "../utils/types.js";
+import { ok, err, idOf, type DomainHandler } from "../utils/types.js";
 
 const tools: Tool[] = [
   {
@@ -43,9 +43,9 @@ async function handleCall(toolName: string, args: Record<string, unknown>) {
       case "snipeit_locations_list":
         return ok(await snipeGet("/locations", args as Record<string, string | number>));
       case "snipeit_locations_get":
-        return ok(await snipeGet(`/locations/${args.id}`));
+        return ok(await snipeGet(`/locations/${idOf(args)}`));
       case "snipeit_locations_assets":
-        return ok(await snipeGet(`/locations/${args.id}/assets`));
+        return ok(await snipeGet(`/locations/${idOf(args)}/assets`));
       default:
         return err(`Unknown locations tool: ${toolName}`);
     }

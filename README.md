@@ -35,6 +35,7 @@ Get your API token from **Snipe-IT → Profile → API**.
 | `SNIPEIT_URL` | Yes | Base URL of your Snipe-IT instance |
 | `SNIPEIT_API_TOKEN` | Yes | Bearer token from your Snipe-IT profile |
 | `LOG_LEVEL` | No | `debug`, `info` (default), `warn`, `error` |
+| `SNIPEIT_TIMEOUT_MS` | No | Request timeout in milliseconds (default `30000`) |
 
 ---
 
@@ -52,6 +53,7 @@ Get your API token from **Snipe-IT → Profile → API**.
 | `snipeit_hardware_list` | List assets with filters (status, category, location, search) |
 | `snipeit_hardware_get` | Get asset by ID |
 | `snipeit_hardware_by_tag` | Get asset by asset tag |
+| `snipeit_hardware_by_serial` | Get asset(s) by serial number |
 | `snipeit_hardware_checkin` | Check in an asset |
 | `snipeit_hardware_checkout` | Check out to user, location, or asset |
 | `snipeit_hardware_audit` | Record an asset audit |
@@ -88,6 +90,11 @@ Get your API token from **Snipe-IT → Profile → API**.
 | `snipeit_statuslabels_list` / `snipeit_statuslabels_get` | Status labels |
 | `snipeit_statuslabels_assets` | Assets with a given status |
 
+> **Note:** responses are compacted before being returned to the model — null/empty
+> fields, `available_actions`, and redundant `formatted` date strings are stripped,
+> and `custom_fields` is flattened to a simple `{name: value}` map. This keeps
+> large asset lists cheap without losing information.
+
 ---
 
 ## Built-in Prompts
@@ -120,9 +127,9 @@ Pull requests welcome! Areas that would benefit from community help:
 
 - Accessories, consumables, and components domains
 - Asset maintenance records
-- Custom fields support
+- Custom fields support (writing; reading is already flattened into responses)
 - Bulk operations
-- Tests
+- License seat checkout/checkin
 
 Please open an issue first for major changes.
 

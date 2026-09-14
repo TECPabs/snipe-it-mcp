@@ -23,7 +23,7 @@ let _toolCache: Awaited<ReturnType<typeof getAllTools>> | null = null;
 
 export async function createMcpServer(): Promise<Server> {
   const server = new Server(
-    { name: "snipe-it-mcp", version: "1.0.0" },
+    { name: "snipe-it-mcp", version: "1.1.0" },
     { capabilities: { tools: {}, prompts: {} } }
   );
 

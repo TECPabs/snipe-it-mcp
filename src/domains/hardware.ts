@@ -1,6 +1,6 @@
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import { snipeGet, snipePost, snipePatch } from "../utils/client.js";
-import { ok, err, type DomainHandler } from "../utils/types.js";
+import { ok, err, idOf, type DomainHandler } from "../utils/types.js";
 
 const tools: Tool[] = [
   {
@@ -38,6 +38,15 @@ const tools: Tool[] = [
       type: "object" as const,
       properties: { asset_tag: { type: "string", description: "Asset tag" } },
       required: ["asset_tag"],
+    },
+  },
+  {
+    name: "snipeit_hardware_by_serial",
+    description: "Get hardware asset(s) by serial number",
+    inputSchema: {
+      type: "object" as const,
+      properties: { serial: { type: "string", description: "Serial number" } },
+      required: ["serial"],
     },
   },
   {
@@ -129,24 +138,26 @@ async function handleCall(toolName: string, args: Record<string, unknown>) {
       case "snipeit_hardware_list":
         return ok(await snipeGet("/hardware", args as Record<string, string | number>));
       case "snipeit_hardware_get":
-        return ok(await snipeGet(`/hardware/${args.id}`));
+        return ok(await snipeGet(`/hardware/${idOf(args)}`));
       case "snipeit_hardware_by_tag":
         return ok(await snipeGet(`/hardware/bytag/${encodeURIComponent(String(args.asset_tag))}`));
+      case "snipeit_hardware_by_serial":
+        return ok(await snipeGet(`/hardware/byserial/${encodeURIComponent(String(args.serial))}`));
       case "snipeit_hardware_checkin": {
-        const { id, ...body } = args;
-        return ok(await snipePost(`/hardware/${id}/checkin`, body));
+        const { id: _id, ...body } = args;
+        return ok(await snipePost(`/hardware/${idOf(args)}/checkin`, body));
       }
       case "snipeit_hardware_checkout": {
-        const { id, ...body } = args;
-        return ok(await snipePost(`/hardware/${id}/checkout`, body));
+        const { id: _id, ...body } = args;
+        return ok(await snipePost(`/hardware/${idOf(args)}/checkout`, body));
       }
       case "snipeit_hardware_audit":
         return ok(await snipePost("/hardware/audit", args));
       case "snipeit_hardware_create":
         return ok(await snipePost("/hardware", args));
       case "snipeit_hardware_update": {
-        const { id, ...body } = args;
-        return ok(await snipePatch(`/hardware/${id}`, body));
+        const { id: _id, ...body } = args;
+        return ok(await snipePatch(`/hardware/${idOf(args)}`, body));
       }
       default:
         return err(`Unknown hardware tool: ${toolName}`);

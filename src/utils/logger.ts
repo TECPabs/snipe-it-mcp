@@ -1,7 +1,8 @@
 const LEVELS = { debug: 0, info: 1, warn: 2, error: 3 } as const;
 type Level = keyof typeof LEVELS;
 
-const current: Level = (process.env.LOG_LEVEL as Level) ?? "info";
+const envLevel = process.env.LOG_LEVEL;
+const current: Level = envLevel && envLevel in LEVELS ? (envLevel as Level) : "info";
 
 function log(level: Level, message: string, ctx?: unknown): void {
   if (LEVELS[level] < LEVELS[current]) return;
