@@ -1,3 +1,4 @@
+import { createRequire } from "node:module";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { ListToolsRequestSchema, CallToolRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import { getAllTools, getDomainHandler } from "./domains/index.js";
@@ -5,6 +6,9 @@ import { registerPrompts } from "./prompts.js";
 import { isConfigured, getBaseUrl, snipeGet } from "./utils/client.js";
 import { ok, err } from "./utils/types.js";
 import { logger } from "./utils/logger.js";
+
+// Works from both src/ (tests) and dist/ (runtime) — package.json is one level up either way.
+const { version } = createRequire(import.meta.url)("../package.json") as { version: string };
 
 const META_TOOLS = [
   {
@@ -25,7 +29,7 @@ let _toolCache: Awaited<ReturnType<typeof getAllTools>> | null = null;
 
 export async function createMcpServer(): Promise<Server> {
   const server = new Server(
-    { name: "snipe-it-mcp", version: "1.2.0" },
+    { name: "snipe-it-mcp", version },
     { capabilities: { tools: {}, prompts: {} } }
   );
 

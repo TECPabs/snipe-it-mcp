@@ -121,6 +121,22 @@ npm run build
 
 ---
 
+## Releasing
+
+Releases are published to npm automatically by GitHub Actions when a version tag
+is pushed (via [npm trusted publishing](https://docs.npmjs.com/trusted-publishers),
+so no npm tokens are stored in CI):
+
+```bash
+npm version minor        # or patch / major — bumps package.json and creates the vX.Y.Z tag
+git push --follow-tags
+```
+
+The workflow refuses to publish if the tag doesn't match `package.json`, and the
+`prepublishOnly` script runs build + tests + lint before any upload.
+
+---
+
 ## Security Notes
 
 - **Use a least-privilege API token.** Snipe-IT tokens inherit every permission of the
