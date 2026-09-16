@@ -1,6 +1,6 @@
 {
   "name": "@tecpabs/snipe-it-mcp",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "MCP server for Snipe-IT asset management — query and manage assets, users, licenses, and more via Claude",
   "type": "module",
   "main": "dist/index.js",
