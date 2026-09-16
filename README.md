@@ -121,6 +121,25 @@ npm run build
 
 ---
 
+## Security Notes
+
+- **Use a least-privilege API token.** Snipe-IT tokens inherit every permission of the
+  user who created them. Create a dedicated user (e.g. `claude-mcp`) with only the
+  permissions you want Claude to have — view, checkout/checkin, create/edit assets —
+  and generate the token from that account, not from a superadmin.
+- **Use HTTPS.** The server logs a warning at startup if `SNIPEIT_URL` is plain
+  `http://`, since the bearer token would be sent unencrypted.
+- **Write tools send only their documented fields.** Bodies for create, update,
+  checkout, checkin, and audit are filtered against an allowlist, so unexpected
+  extra arguments are never forwarded to the API.
+- **Tools carry MCP annotations** (`readOnlyHint`/`destructiveHint`) so clients can
+  auto-approve reads while still confirming writes.
+- **Treat asset data as untrusted.** Notes and names stored in Snipe-IT are shown to
+  the model; anyone who can edit them can attempt prompt injection. Keep write
+  confirmation enabled in your MCP client.
+
+---
+
 ## Contributing
 
 Pull requests welcome! Areas that would benefit from community help:

@@ -1,11 +1,45 @@
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import { snipeGet, snipePost, snipePatch } from "../utils/client.js";
-import { ok, err, idOf, type DomainHandler } from "../utils/types.js";
+import { ok, err, idOf, pick, READ_ONLY, type DomainHandler } from "../utils/types.js";
+
+const CHECKIN_FIELDS = ["note"] as const;
+const CHECKOUT_FIELDS = [
+  "assigned_user",
+  "assigned_location",
+  "assigned_asset",
+  "checkout_to_type",
+  "note",
+  "expected_checkin",
+] as const;
+const AUDIT_FIELDS = ["asset_tag", "location_id", "note"] as const;
+const CREATE_FIELDS = [
+  "asset_tag",
+  "status_id",
+  "model_id",
+  "name",
+  "serial",
+  "notes",
+  "purchase_date",
+  "purchase_cost",
+  "location_id",
+  "company_id",
+] as const;
+const UPDATE_FIELDS = [
+  "name",
+  "serial",
+  "notes",
+  "status_id",
+  "model_id",
+  "location_id",
+  "purchase_date",
+  "purchase_cost",
+] as const;
 
 const tools: Tool[] = [
   {
     name: "snipeit_hardware_list",
     description: "List hardware assets with optional filters",
+    annotations: READ_ONLY,
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -25,6 +59,7 @@ const tools: Tool[] = [
   {
     name: "snipeit_hardware_get",
     description: "Get a hardware asset by ID",
+    annotations: READ_ONLY,
     inputSchema: {
       type: "object" as const,
       properties: { id: { type: "number", description: "Asset ID" } },
@@ -34,6 +69,7 @@ const tools: Tool[] = [
   {
     name: "snipeit_hardware_by_tag",
     description: "Get a hardware asset by asset tag",
+    annotations: READ_ONLY,
     inputSchema: {
       type: "object" as const,
       properties: { asset_tag: { type: "string", description: "Asset tag" } },
@@ -43,6 +79,7 @@ const tools: Tool[] = [
   {
     name: "snipeit_hardware_by_serial",
     description: "Get hardware asset(s) by serial number",
+    annotations: READ_ONLY,
     inputSchema: {
       type: "object" as const,
       properties: { serial: { type: "string", description: "Serial number" } },
@@ -52,6 +89,7 @@ const tools: Tool[] = [
   {
     name: "snipeit_hardware_checkin",
     description: "Check in an asset (unassign it)",
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true },
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -64,6 +102,7 @@ const tools: Tool[] = [
   {
     name: "snipeit_hardware_checkout",
     description: "Check out an asset to a user, location, or another asset",
+    annotations: { readOnlyHint: false, destructiveHint: false },
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -81,6 +120,7 @@ const tools: Tool[] = [
   {
     name: "snipeit_hardware_audit",
     description: "Record an audit on an asset",
+    annotations: { readOnlyHint: false, destructiveHint: false },
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -94,6 +134,7 @@ const tools: Tool[] = [
   {
     name: "snipeit_hardware_create",
     description: "Create a new hardware asset",
+    annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false },
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -113,7 +154,8 @@ const tools: Tool[] = [
   },
   {
     name: "snipeit_hardware_update",
-    description: "Update fields on an existing asset",
+    description: "Update fields on an existing asset (overwrites existing values)",
+    annotations: { readOnlyHint: false, destructiveHint: true },
     inputSchema: {
       type: "object" as const,
       properties: {
@@ -143,22 +185,16 @@ async function handleCall(toolName: string, args: Record<string, unknown>) {
         return ok(await snipeGet(`/hardware/bytag/${encodeURIComponent(String(args.asset_tag))}`));
       case "snipeit_hardware_by_serial":
         return ok(await snipeGet(`/hardware/byserial/${encodeURIComponent(String(args.serial))}`));
-      case "snipeit_hardware_checkin": {
-        const { id: _id, ...body } = args;
-        return ok(await snipePost(`/hardware/${idOf(args)}/checkin`, body));
-      }
-      case "snipeit_hardware_checkout": {
-        const { id: _id, ...body } = args;
-        return ok(await snipePost(`/hardware/${idOf(args)}/checkout`, body));
-      }
+      case "snipeit_hardware_checkin":
+        return ok(await snipePost(`/hardware/${idOf(args)}/checkin`, pick(args, CHECKIN_FIELDS)));
+      case "snipeit_hardware_checkout":
+        return ok(await snipePost(`/hardware/${idOf(args)}/checkout`, pick(args, CHECKOUT_FIELDS)));
       case "snipeit_hardware_audit":
-        return ok(await snipePost("/hardware/audit", args));
+        return ok(await snipePost("/hardware/audit", pick(args, AUDIT_FIELDS)));
       case "snipeit_hardware_create":
-        return ok(await snipePost("/hardware", args));
-      case "snipeit_hardware_update": {
-        const { id: _id, ...body } = args;
-        return ok(await snipePatch(`/hardware/${idOf(args)}`, body));
-      }
+        return ok(await snipePost("/hardware", pick(args, CREATE_FIELDS)));
+      case "snipeit_hardware_update":
+        return ok(await snipePatch(`/hardware/${idOf(args)}`, pick(args, UPDATE_FIELDS)));
       default:
         return err(`Unknown hardware tool: ${toolName}`);
     }

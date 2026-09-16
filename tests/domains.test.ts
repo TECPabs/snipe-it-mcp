@@ -23,6 +23,13 @@ describe("domain routing", () => {
     }
   });
 
+  it("every tool carries annotations with an explicit readOnlyHint", async () => {
+    const tools = await getAllTools();
+    for (const tool of tools) {
+      expect(tool.annotations?.readOnlyHint, tool.name).toBeTypeOf("boolean");
+    }
+  });
+
   it("every advertised tool is handled by its domain (no unknown-tool fallthrough)", async () => {
     const tools = await getAllTools();
     for (const tool of tools) {

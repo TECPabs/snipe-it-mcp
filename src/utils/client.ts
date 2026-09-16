@@ -19,6 +19,11 @@ function getClient(): SnipeClient {
       "Missing required env vars: SNIPEIT_URL and SNIPEIT_API_TOKEN must be set."
     );
   }
+  if (baseUrl.startsWith("http://")) {
+    logger.warn(
+      "SNIPEIT_URL uses plain http:// — the API token is sent unencrypted on every request. Use https:// unless this is a trusted local network."
+    );
+  }
   _client = { baseUrl, token };
   return _client;
 }

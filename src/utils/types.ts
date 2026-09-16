@@ -50,6 +50,21 @@ export function compact(value: unknown): unknown {
   return out;
 }
 
+/** Annotation for tools that only read from Snipe-IT. */
+export const READ_ONLY = { readOnlyHint: true } as const;
+
+/** Keep only allowlisted fields from tool args before sending them as a request body. */
+export function pick(
+  args: Record<string, unknown>,
+  keys: readonly string[]
+): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const k of keys) {
+    if (args[k] !== undefined) out[k] = args[k];
+  }
+  return out;
+}
+
 /** Validate and coerce an integer ID argument before it is interpolated into a URL path. */
 export function idOf(args: Record<string, unknown>, key = "id"): number {
   const v = args[key];

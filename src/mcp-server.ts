@@ -11,11 +11,13 @@ const META_TOOLS = [
     name: "snipeit_status",
     description: "Check Snipe-IT connection status and API credentials",
     inputSchema: { type: "object" as const, properties: {} },
+    annotations: { readOnlyHint: true },
   },
   {
     name: "snipeit_navigate",
     description: "Discover available tool domains and capabilities",
     inputSchema: { type: "object" as const, properties: {} },
+    annotations: { readOnlyHint: true },
   },
 ];
 
@@ -23,7 +25,7 @@ let _toolCache: Awaited<ReturnType<typeof getAllTools>> | null = null;
 
 export async function createMcpServer(): Promise<Server> {
   const server = new Server(
-    { name: "snipe-it-mcp", version: "1.1.0" },
+    { name: "snipe-it-mcp", version: "1.2.0" },
     { capabilities: { tools: {}, prompts: {} } }
   );
 

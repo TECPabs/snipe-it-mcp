@@ -1,6 +1,6 @@
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import { snipeGet } from "../utils/client.js";
-import { ok, err, idOf, type DomainHandler } from "../utils/types.js";
+import { ok, err, idOf, READ_ONLY, type DomainHandler } from "../utils/types.js";
 
 const tools: Tool[] = [
   {
@@ -44,6 +44,6 @@ async function handleCall(toolName: string, args: Record<string, unknown>) {
 }
 
 export const categoriesHandler: DomainHandler = {
-  getTools: () => tools,
+  getTools: () => tools.map((t) => ({ ...t, annotations: READ_ONLY })),
   handleCall,
 };
