@@ -81,6 +81,35 @@ Get your API token from **Snipe-IT → Profile → API**.
 | `snipeit_licenses_get` | Get license by ID |
 | `snipeit_licenses_seats` | List seat assignments |
 
+### Accessories
+| Tool | Description |
+|---|---|
+| `snipeit_accessories_list` | List accessories with filters |
+| `snipeit_accessories_get` | Get accessory by ID |
+| `snipeit_accessories_checkedout` | Who has an accessory (rows include the `assigned_pivot_id` used for check-in) |
+| `snipeit_accessories_checkout` | Check out a unit to a user |
+| `snipeit_accessories_checkin` | Check in a unit (takes the assignment row ID, not the accessory ID) |
+| `snipeit_accessories_create` / `snipeit_accessories_update` | Create / update accessories |
+
+### Consumables
+| Tool | Description |
+|---|---|
+| `snipeit_consumables_list` | List consumables with filters |
+| `snipeit_consumables_get` | Get consumable by ID |
+| `snipeit_consumables_users` | Users a consumable has been issued to |
+| `snipeit_consumables_checkout` | Issue a unit to a user (no check-in — consumed) |
+| `snipeit_consumables_create` / `snipeit_consumables_update` | Create / update consumables |
+
+### Components
+| Tool | Description |
+|---|---|
+| `snipeit_components_list` | List components with filters |
+| `snipeit_components_get` | Get component by ID |
+| `snipeit_components_assets` | Assets a component is installed in |
+| `snipeit_components_checkout` | Check out units to an asset |
+| `snipeit_components_checkin` | Check in units (takes the assignment row ID) |
+| `snipeit_components_create` / `snipeit_components_update` | Create / update components |
+
 ### Models, Categories, Manufacturers, Status Labels
 | Tool | Description |
 |---|---|
@@ -160,11 +189,12 @@ The workflow refuses to publish if the tag doesn't match `package.json`, and the
 
 Pull requests welcome! Areas that would benefit from community help:
 
-- Accessories, consumables, and components domains
+- Companies and departments lookups
+- License seat checkout/checkin
+- Activity report and audit due/overdue
 - Asset maintenance records
 - Custom fields support (writing; reading is already flattened into responses)
 - Bulk operations
-- License seat checkout/checkin
 
 Please open an issue first for major changes.
 

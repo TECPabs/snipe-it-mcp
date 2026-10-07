@@ -16,6 +16,9 @@ async function loadHandler(domain: string): Promise<DomainHandler> {
     case "categories":    { const m = await import("./categories.js");    handler = m.categoriesHandler; break; }
     case "manufacturers": { const m = await import("./manufacturers.js"); handler = m.manufacturersHandler; break; }
     case "statuslabels":  { const m = await import("./statuslabels.js");  handler = m.statuslabelsHandler; break; }
+    case "accessories":   { const m = await import("./accessories.js");   handler = m.accessoriesHandler; break; }
+    case "consumables":   { const m = await import("./consumables.js");   handler = m.consumablesHandler; break; }
+    case "components":    { const m = await import("./components.js");    handler = m.componentsHandler; break; }
     default:
       throw new Error(`Unknown domain: ${domain}`);
   }
@@ -24,7 +27,7 @@ async function loadHandler(domain: string): Promise<DomainHandler> {
   return handler;
 }
 
-export const DOMAINS = ["hardware", "users", "locations", "licenses", "models", "categories", "manufacturers", "statuslabels"] as const;
+export const DOMAINS = ["hardware", "users", "locations", "licenses", "models", "categories", "manufacturers", "statuslabels", "accessories", "consumables", "components"] as const;
 
 export async function getDomainHandler(toolName: string): Promise<DomainHandler | null> {
   for (const domain of DOMAINS) {

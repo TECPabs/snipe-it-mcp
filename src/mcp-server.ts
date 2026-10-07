@@ -72,6 +72,9 @@ export async function createMcpServer(): Promise<Server> {
           categories:    "Categories — list, get",
           manufacturers: "Manufacturers — list, get",
           statuslabels:  "Status labels — list, get, assets by status",
+          accessories:   "Accessories — list, get, who has them, check out/in, create, update",
+          consumables:   "Consumables — list, get, issued-to list, issue to user, create, update",
+          components:    "Components — list, get, installed-in list, check out/in, create, update",
         },
         tip: "All tools follow the pattern snipeit_{domain}_{action}. Use snipeit_hardware_list to start.",
       });
