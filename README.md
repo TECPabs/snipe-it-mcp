@@ -66,6 +66,8 @@ Get your API token from **Snipe-IT → Profile → API**.
 | `snipeit_users_list` | List users |
 | `snipeit_users_get` | Get user by ID |
 | `snipeit_users_assets` | List assets assigned to a user |
+| `snipeit_users_accessories` | List accessories checked out to a user |
+| `snipeit_users_licenses` | List licenses assigned to a user |
 
 ### Locations
 | Tool | Description |

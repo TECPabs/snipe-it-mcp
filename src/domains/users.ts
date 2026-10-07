@@ -37,6 +37,25 @@ const tools: Tool[] = [
       required: ["id"],
     },
   },
+  {
+    name: "snipeit_users_accessories",
+    description:
+      "List all accessories checked out to a user (one call; no need to scan accessories one by one)",
+    inputSchema: {
+      type: "object" as const,
+      properties: { id: { type: "number", description: "User ID" } },
+      required: ["id"],
+    },
+  },
+  {
+    name: "snipeit_users_licenses",
+    description: "List all licenses assigned to a user",
+    inputSchema: {
+      type: "object" as const,
+      properties: { id: { type: "number", description: "User ID" } },
+      required: ["id"],
+    },
+  },
 ];
 
 async function handleCall(toolName: string, args: Record<string, unknown>) {
@@ -48,6 +67,10 @@ async function handleCall(toolName: string, args: Record<string, unknown>) {
         return ok(await snipeGet(`/users/${idOf(args)}`));
       case "snipeit_users_assets":
         return ok(await snipeGet(`/users/${idOf(args)}/assets`));
+      case "snipeit_users_accessories":
+        return ok(await snipeGet(`/users/${idOf(args)}/accessories`));
+      case "snipeit_users_licenses":
+        return ok(await snipeGet(`/users/${idOf(args)}/licenses`));
       default:
         return err(`Unknown users tool: ${toolName}`);
     }
