@@ -112,6 +112,17 @@ Get your API token from **Snipe-IT → Profile → API**.
 | `snipeit_components_checkin` | Check in units (takes the assignment row ID) |
 | `snipeit_components_create` / `snipeit_components_update` | Create / update components |
 
+### Reports
+| Tool | Description |
+|---|---|
+| `snipeit_reports_activity` | Activity audit trail (checkouts, checkins, updates, audits) filterable by item or user |
+| `snipeit_reports_audit_due` | Assets whose scheduled audit is due soon |
+| `snipeit_reports_audit_overdue` | Assets whose audit date has passed |
+| `snipeit_reports_low_stock` | Accessories/consumables/components below their minimum quantity (computed) |
+
+> Snipe-IT's web-UI "Custom Reports" CSV builder and depreciation report have no REST
+> API equivalents, so they are not exposed here.
+
 ### Models, Categories, Manufacturers, Status Labels
 | Tool | Description |
 |---|---|
@@ -193,7 +204,6 @@ Pull requests welcome! Areas that would benefit from community help:
 
 - Companies and departments lookups
 - License seat checkout/checkin
-- Activity report and audit due/overdue
 - Asset maintenance records
 - Custom fields support (writing; reading is already flattened into responses)
 - Bulk operations
