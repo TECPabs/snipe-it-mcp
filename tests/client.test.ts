@@ -2,8 +2,15 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 process.env.SNIPEIT_URL = "https://snipe.example.com/";
 process.env.SNIPEIT_API_TOKEN = "test-token";
+process.env.SNIPEIT_WRITE_TOOLS = "*";
+delete process.env.SNIPEIT_ALLOWED_COMPANY_IDS;
 
 const { snipeGet, snipePost } = await import("../src/utils/client.js");
+const { runInToolContext } = await import("../src/utils/policy.js");
+
+/** Writes are only accepted from inside an enabled write tool. */
+const asWriteTool = <T>(fn: () => Promise<T>) =>
+  runInToolContext({ name: "snipeit_hardware_checkout", annotations: { readOnlyHint: false } }, fn);
 
 function jsonResponse(body: unknown, init?: ResponseInit): Response {
   return new Response(JSON.stringify(body), {
@@ -42,28 +49,34 @@ describe("client", () => {
 
   it("throws on HTTP error statuses", async () => {
     fetchMock.mockResolvedValueOnce(new Response("Unauthorized", { status: 401 }));
-    await expect(snipeGet("/hardware")).rejects.toThrow(/401/);
+    const error = (await snipeGet("/hardware").catch((e: Error) => e)) as Error;
+    expect(error.message).toMatch(/HTTP 401/);
+    expect(error.message).not.toMatch(/Unauthorized/);
   });
 
   it("throws on HTTP 200 responses carrying a Snipe-IT error payload", async () => {
     fetchMock.mockResolvedValueOnce(
       jsonResponse({ status: "error", messages: "Asset is not available for checkout" })
     );
-    await expect(snipePost("/hardware/1/checkout", { assigned_user: 2 })).rejects.toThrow(
-      /Asset is not available for checkout/
-    );
+    await expect(
+      asWriteTool(() => snipePost("/hardware/1/checkout", { assigned_user: 2 }))
+    ).rejects.toThrow(/^Snipe-IT error: Asset is not available for checkout \[ref: [0-9a-f]{8}\]$/);
   });
 
-  it("stringifies structured error messages", async () => {
+  it("renders structured error messages as field: message pairs", async () => {
     fetchMock.mockResolvedValueOnce(
       jsonResponse({ status: "error", messages: { asset_tag: ["already taken"] } })
     );
-    await expect(snipePost("/hardware", {})).rejects.toThrow(/already taken/);
+    await expect(asWriteTool(() => snipePost("/hardware", {}))).rejects.toThrow(
+      /Snipe-IT error: asset_tag: already taken \[ref:/
+    );
   });
 
   it("throws a clear error on non-JSON responses", async () => {
     fetchMock.mockResolvedValueOnce(new Response("<html>login page</html>", { status: 200 }));
-    await expect(snipeGet("/hardware")).rejects.toThrow(/non-JSON/);
+    const error = (await snipeGet("/hardware").catch((e: Error) => e)) as Error;
+    expect(error.message).toMatch(/non-JSON/);
+    expect(error.message).not.toMatch(/login page/);
   });
 
   it("retries once after a 429, honoring retry-after", async () => {

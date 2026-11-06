@@ -1,6 +1,6 @@
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import { snipeGet, snipePost, snipePatch } from "../utils/client.js";
-import { ok, err, idOf, pick, READ_ONLY, type DomainHandler } from "../utils/types.js";
+import { ok, err, fail, idOf, pick, READ_ONLY, type DomainHandler } from "../utils/types.js";
 
 const CHECKOUT_FIELDS = ["assigned_to", "assigned_qty", "note"] as const;
 const CHECKIN_FIELDS = ["checkin_qty", "note"] as const;
@@ -83,6 +83,7 @@ const tools: Tool[] = [
       type: "object" as const,
       properties: {
         component_asset_id: { type: "number", description: "Assignment row ID from snipeit_components_assets" },
+        id:                 { type: "number", description: "Component ID the assignment belongs to. Required when the server restricts company scope." },
         checkin_qty:        { type: "number", description: "Quantity to check in (default 1)" },
         note:               { type: "string", description: "Optional check-in note" },
       },
@@ -153,7 +154,8 @@ async function handleCall(toolName: string, args: Record<string, unknown>) {
         return ok(
           await snipePost(
             `/components/${idOf(args, "component_asset_id")}/checkin`,
-            pick(args, CHECKIN_FIELDS)
+            pick(args, CHECKIN_FIELDS),
+            { parentId: args.id }
           )
         );
       case "snipeit_components_create":
@@ -164,7 +166,7 @@ async function handleCall(toolName: string, args: Record<string, unknown>) {
         return err(`Unknown components tool: ${toolName}`);
     }
   } catch (e) {
-    return err(e instanceof Error ? e.message : String(e));
+    return fail(e);
   }
 }
 

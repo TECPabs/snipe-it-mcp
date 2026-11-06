@@ -2,8 +2,12 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 process.env.SNIPEIT_URL = "https://snipe.example.com";
 process.env.SNIPEIT_API_TOKEN = "test-token";
+// Write tools are disabled by default; these tests exercise them, so enable them.
+process.env.SNIPEIT_WRITE_TOOLS = "*";
+delete process.env.SNIPEIT_ALLOWED_COMPANY_IDS;
 
 const { hardwareHandler } = await import("../src/domains/hardware.js");
+const { callTool } = await import("../src/mcp-server.js");
 
 function jsonResponse(body: unknown): Response {
   return new Response(JSON.stringify(body), {
@@ -26,7 +30,7 @@ describe("hardware write allowlists", () => {
   });
 
   it("strips unadvertised fields from checkout bodies", async () => {
-    await hardwareHandler.handleCall("snipeit_hardware_checkout", {
+    await callTool("snipeit_hardware_checkout", {
       id: 1,
       checkout_to_type: "user",
       assigned_user: 2,
@@ -40,7 +44,7 @@ describe("hardware write allowlists", () => {
   });
 
   it("strips unadvertised fields from create bodies", async () => {
-    await hardwareHandler.handleCall("snipeit_hardware_create", {
+    await callTool("snipeit_hardware_create", {
       asset_tag: "A100",
       status_id: 1,
       model_id: 2,
@@ -53,7 +57,7 @@ describe("hardware write allowlists", () => {
   });
 
   it("never sends the path id inside the update body", async () => {
-    await hardwareHandler.handleCall("snipeit_hardware_update", { id: 5, name: "PC-05" });
+    await callTool("snipeit_hardware_update", { id: 5, name: "PC-05" });
 
     const [url, init] = fetchMock.mock.calls[0];
     expect(url).toBe("https://snipe.example.com/api/v1/hardware/5");

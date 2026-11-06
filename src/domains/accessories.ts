@@ -1,6 +1,6 @@
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import { snipeGet, snipePost, snipePatch } from "../utils/client.js";
-import { ok, err, idOf, pick, READ_ONLY, type DomainHandler } from "../utils/types.js";
+import { ok, err, fail, idOf, pick, READ_ONLY, type DomainHandler } from "../utils/types.js";
 
 const CHECKOUT_FIELDS = ["assigned_to", "checkout_qty", "note"] as const;
 const CHECKIN_FIELDS = ["note"] as const;
@@ -85,6 +85,7 @@ const tools: Tool[] = [
       type: "object" as const,
       properties: {
         assigned_pivot_id: { type: "number", description: "Assignment row ID from the checkedout list" },
+        id:                { type: "number", description: "Accessory ID the assignment belongs to. Required when the server restricts company scope." },
         note:              { type: "string", description: "Optional check-in note" },
       },
       required: ["assigned_pivot_id"],
@@ -158,7 +159,8 @@ async function handleCall(toolName: string, args: Record<string, unknown>) {
         return ok(
           await snipePost(
             `/accessories/${idOf(args, "assigned_pivot_id")}/checkin`,
-            pick(args, CHECKIN_FIELDS)
+            pick(args, CHECKIN_FIELDS),
+            { parentId: args.id }
           )
         );
       case "snipeit_accessories_create":
@@ -169,7 +171,7 @@ async function handleCall(toolName: string, args: Record<string, unknown>) {
         return err(`Unknown accessories tool: ${toolName}`);
     }
   } catch (e) {
-    return err(e instanceof Error ? e.message : String(e));
+    return fail(e);
   }
 }
 

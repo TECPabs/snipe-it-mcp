@@ -1,6 +1,6 @@
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import { snipeGet } from "../utils/client.js";
-import { ok, err, READ_ONLY, type DomainHandler } from "../utils/types.js";
+import { ok, err, fail, READ_ONLY, type DomainHandler } from "../utils/types.js";
 
 const tools: Tool[] = [
   {
@@ -158,7 +158,7 @@ async function handleCall(toolName: string, args: Record<string, unknown>) {
         return err(`Unknown reports tool: ${toolName}`);
     }
   } catch (e) {
-    return err(e instanceof Error ? e.message : String(e));
+    return fail(e);
   }
 }
 

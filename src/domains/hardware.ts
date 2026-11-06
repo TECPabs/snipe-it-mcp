@@ -1,6 +1,6 @@
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import { snipeGet, snipePost, snipePatch } from "../utils/client.js";
-import { ok, err, idOf, pick, READ_ONLY, type DomainHandler } from "../utils/types.js";
+import { ok, err, fail, idOf, pick, READ_ONLY, type DomainHandler } from "../utils/types.js";
 
 const CHECKIN_FIELDS = ["note"] as const;
 const CHECKOUT_FIELDS = [
@@ -199,7 +199,7 @@ async function handleCall(toolName: string, args: Record<string, unknown>) {
         return err(`Unknown hardware tool: ${toolName}`);
     }
   } catch (e) {
-    return err(e instanceof Error ? e.message : String(e));
+    return fail(e);
   }
 }
 

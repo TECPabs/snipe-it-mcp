@@ -2,9 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 process.env.SNIPEIT_URL = "https://snipe.example.com";
 process.env.SNIPEIT_API_TOKEN = "test-token";
+// Write tools are disabled by default; these tests exercise them, so enable them.
+process.env.SNIPEIT_WRITE_TOOLS = "*";
+delete process.env.SNIPEIT_ALLOWED_COMPANY_IDS;
 
-const { accessoriesHandler } = await import("../src/domains/accessories.js");
-const { componentsHandler } = await import("../src/domains/components.js");
+const { callTool } = await import("../src/mcp-server.js");
 
 function jsonResponse(body: unknown): Response {
   return new Response(JSON.stringify(body), {
@@ -27,7 +29,7 @@ describe("accessories and components checkin routing", () => {
   });
 
   it("accessory checkin uses the assignment row ID in the path, not an accessory id", async () => {
-    await accessoriesHandler.handleCall("snipeit_accessories_checkin", {
+    await callTool("snipeit_accessories_checkin", {
       assigned_pivot_id: 42,
       note: "returned",
     });
@@ -38,7 +40,7 @@ describe("accessories and components checkin routing", () => {
   });
 
   it("accessory checkout posts to the accessory ID with allowlisted fields only", async () => {
-    await accessoriesHandler.handleCall("snipeit_accessories_checkout", {
+    await callTool("snipeit_accessories_checkout", {
       id: 7,
       assigned_to: 3,
       note: "new hire",
@@ -52,7 +54,7 @@ describe("accessories and components checkin routing", () => {
   });
 
   it("component checkin uses the assignment row ID in the path", async () => {
-    await componentsHandler.handleCall("snipeit_components_checkin", {
+    await callTool("snipeit_components_checkin", {
       component_asset_id: 11,
       checkin_qty: 2,
     });
@@ -63,7 +65,7 @@ describe("accessories and components checkin routing", () => {
   });
 
   it("rejects a checkin without the assignment row ID", async () => {
-    const result = await accessoriesHandler.handleCall("snipeit_accessories_checkin", {});
+    const result = await callTool("snipeit_accessories_checkin", {});
     expect(result.isError).toBe(true);
     expect(result.content[0].text).toMatch(/assigned_pivot_id/);
   });

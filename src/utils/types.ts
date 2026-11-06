@@ -1,4 +1,6 @@
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
+import { InputError, SafeError, newCorrelationId } from "./errors.js";
+import { logger } from "./logger.js";
 
 export type CallToolResult = {
   content: Array<{ type: "text"; text: string }>;
@@ -11,7 +13,9 @@ export interface DomainHandler {
 }
 
 /**
- * Shrink Snipe-IT API payloads before returning them to the model:
+ * Shrink Snipe-IT API payloads before returning them to the model. This is
+ * purely cosmetic — the security-relevant field allowlist has already been
+ * applied by the client (see utils/policy.ts `projectRecord`).
  * - drop null/empty-string fields and `available_actions`
  * - collapse `{datetime|date, formatted}` objects to the raw value
  * - collapse `custom_fields` to a flat {name: value} map, dropping empties
@@ -70,7 +74,7 @@ export function idOf(args: Record<string, unknown>, key = "id"): number {
   const v = args[key];
   const n = typeof v === "number" ? v : Number(v);
   if (!Number.isInteger(n) || n <= 0) {
-    throw new Error(`Invalid ${key}: expected a positive integer, got ${JSON.stringify(v)}`);
+    throw new InputError(`Invalid ${key}: expected a positive integer, got ${JSON.stringify(v)}`);
   }
   return n;
 }
@@ -81,4 +85,16 @@ export function ok(data: unknown): CallToolResult {
 
 export function err(message: string): CallToolResult {
   return { content: [{ type: "text", text: message }], isError: true };
+}
+
+/**
+ * Turn any thrown value into a tool error result. Only SafeError messages
+ * (policy refusals, input validation, sanitized upstream errors) reach the
+ * client; anything else is logged with a correlation ID and replaced.
+ */
+export function fail(e: unknown): CallToolResult {
+  if (e instanceof SafeError) return err(e.message);
+  const ref = newCorrelationId();
+  logger.error("Unhandled tool error", { ref, error: e instanceof Error ? e : String(e) });
+  return err(`Internal error [ref: ${ref}]`);
 }

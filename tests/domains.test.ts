@@ -1,5 +1,15 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { getDomainHandler, getAllTools, DOMAINS } from "../src/domains/index.js";
+
+// These tests call handlers with empty arguments; make sure nothing can reach a real instance.
+delete process.env.SNIPEIT_URL;
+delete process.env.SNIPEIT_API_TOKEN;
+vi.stubGlobal(
+  "fetch",
+  vi.fn(async () => {
+    throw new Error("network access is not allowed in tests");
+  })
+);
 
 describe("domain routing", () => {
   it("routes tool names to their domain handler", async () => {
